@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"sync"
 
-	"github.com/richaardev/concord/discord/core"
+	"github.com/richaardev/concord/core"
 )
 
 type ModuleManager interface {

@@ -12,6 +12,37 @@ type InteractiveComponent interface {
 }
 
 // ============================================================================
+// InteractiveModal
+// ============================================================================
+
+type InteractiveModal struct {
+	discord.ModalCreate
+	handler ModalHandler
+}
+
+func (i *InteractiveModal) Handler(e *events.ModalSubmitInteractionCreate) error {
+	if i.handler == nil {
+		return nil
+	}
+
+	return i.handler(e)
+}
+
+func (i *InteractiveModal) WithHandler(e func(e *events.ModalSubmitInteractionCreate) error) *InteractiveModal {
+	i.handler = e
+	return i
+}
+
+func (i *InteractiveModal) WithCustomID(customID string) *InteractiveModal {
+	i.CustomID = customID
+	return i
+}
+
+func (i *InteractiveModal) Create() discord.ModalCreate {
+	return i.ModalCreate
+}
+
+// ============================================================================
 // InteractiveButton
 // ============================================================================
 

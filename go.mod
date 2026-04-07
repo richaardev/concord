@@ -3,7 +3,7 @@ module github.com/richaardev/concord
 go 1.25.0
 
 require (
-	github.com/disgoorg/disgo v0.19.3 // indirect
+	github.com/disgoorg/disgo v0.19.4-0.20260406133522-1fd08eb03eae // indirect
 	github.com/disgoorg/godave v0.1.0 // indirect
 	github.com/disgoorg/json/v2 v2.0.0 // indirect
 	github.com/disgoorg/omit v1.0.0 // indirect

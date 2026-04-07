@@ -1,5 +1,7 @@
 github.com/disgoorg/disgo v0.19.3 h1:kCfez2nkyXZCxQoaspvZbRNOuOIHWjOMjIhuZ6XOxUw=
 github.com/disgoorg/disgo v0.19.3/go.mod h1:NnV63iw4lJdF1fnV0gX27XR43ZgRGqnL122svRMTgTE=
+github.com/disgoorg/disgo v0.19.4-0.20260406133522-1fd08eb03eae h1:mgiiLYluEQqlbmYjnB/MZVpZmDKgjrXHzwGQENMPBHI=
+github.com/disgoorg/disgo v0.19.4-0.20260406133522-1fd08eb03eae/go.mod h1:NnV63iw4lJdF1fnV0gX27XR43ZgRGqnL122svRMTgTE=
 github.com/disgoorg/godave v0.1.0 h1:3g0Zqzz+zNaxQTVLfCnl5eZKGqZk6cM/JLLbMKCtZQQ=
 github.com/disgoorg/godave v0.1.0/go.mod h1:OreAC3hpabr39bMVA+jwOVDq1EUPXH5A0XUBiZaDI1Y=
 github.com/disgoorg/json/v2 v2.0.0 h1:U16yy/ARK7/aEpzjjqK1b/KaqqGHozUdeVw/DViEzQI=

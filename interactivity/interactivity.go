@@ -10,7 +10,7 @@ import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/snowflake/v2"
-	"github.com/richaardev/concord/discord/client"
+	"github.com/richaardev/concord/client"
 )
 
 var (
@@ -45,15 +45,11 @@ type Interactivity interface {
 	NewUserSelectMenu(placeholder string) *InteractiveUserSelectMenu
 	NewRoleSelectMenu(placeholder string) *InteractiveRoleSelectMenu
 
-	Modal(comp discord.ModalCreate, opts ...InteractivityOption) discord.ModalCreate
+	NewModal(title string, components ...discord.LayoutComponent) *InteractiveModal
+
 	RemoveComponent(customID string)
 	RemoveModal(customID string)
 	Cancel()
-}
-
-type mHandler struct {
-	Modal   discord.ModalCreate
-	Handler ModalHandler
 }
 
 type interactivityImpl struct {
@@ -65,14 +61,14 @@ type interactivityImpl struct {
 	channelId snowflake.ID
 	guildId   snowflake.ID
 
-	client *client.BotClient
+	client *client.ConcordClient
 	ctx    context.Context
 	cancel context.CancelFunc
 	mu     sync.RWMutex
 
 	resetIdle chan struct{}
 
-	modalHandlers map[string]mHandler
+	modalHandlers map[string]*InteractiveModal
 	modalFilter   func(e *events.ModalSubmitInteractionCreate) bool
 
 	middleware        ComponentHandlerMiddleware
@@ -80,7 +76,7 @@ type interactivityImpl struct {
 	componentFilter   func(e *events.ComponentInteractionCreate) bool
 }
 
-func NewInteractivity(client *client.BotClient, opts ...ManagerOption) Interactivity {
+func NewInteractivity(client *client.ConcordClient, opts ...ManagerOption) Interactivity {
 	id := randomString(64)
 	config := ManagerOptions{}
 	for _, opt := range opts {
@@ -132,7 +128,7 @@ func NewInteractivity(client *client.BotClient, opts ...ManagerOption) Interacti
 		ctx:               ctx,
 		cancel:            ctxCancel,
 		componentHandlers: make(map[string]InteractiveComponent),
-		modalHandlers:     make(map[string]mHandler),
+		modalHandlers:     make(map[string]*InteractiveModal),
 	}
 
 	i.cancel = func() {
@@ -285,24 +281,20 @@ func (i *interactivityImpl) NewUserSelectMenu(placeholder string) *InteractiveUs
 	return interactive
 }
 
-func (i *interactivityImpl) Modal(comp discord.ModalCreate, opts ...InteractivityOption) discord.ModalCreate {
-	options := applyOptions(opts)
-	comp.CustomID = randomString(16)
-
-	if options.modalHandler != nil {
-		i.registerModal(comp, options.modalHandler)
+func (i *interactivityImpl) NewModal(title string, components ...discord.LayoutComponent) *InteractiveModal {
+	interactive := &InteractiveModal{
+		ModalCreate: discord.ModalCreate{
+			Title:      title,
+			Components: components,
+			CustomID:   "richaardev_loves_you_" + randomString(32),
+		},
 	}
 
-	return comp
-}
-
-func (i *interactivityImpl) registerModal(comp discord.ModalCreate, handler ModalHandler) {
 	i.mu.Lock()
 	defer i.mu.Unlock()
-	i.modalHandlers[comp.CustomID] = mHandler{
-		Modal:   comp,
-		Handler: handler,
-	}
+	i.modalHandlers[interactive.CustomID] = interactive
+
+	return interactive
 }
 
 func (i *interactivityImpl) RemoveComponent(customID string) {
@@ -373,8 +365,6 @@ func (i *interactivityImpl) watchComponents() {
 			handler, ok := i.componentHandlers[e.Data.CustomID()]
 			i.mu.RUnlock()
 
-			println(ok)
-
 			if ok && e.Data.Type() == handler.Type() {
 				i.notifyActivity()
 
@@ -411,7 +401,11 @@ func (i *interactivityImpl) watchModals() {
 
 			if ok {
 				i.notifyActivity()
-				go handler.Handler(e)
+				go func() {
+					if err := handler.Handler(e); err != nil {
+						slog.Error("erro ao tentar executar o interactive", "error", err)
+					}
+				}()
 			}
 		}
 	}

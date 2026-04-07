@@ -1,6 +1,6 @@
 package managers
 
-import "github.com/richaardev/concord/discord/core"
+import "github.com/richaardev/concord/core"
 
 var _ InteractionManager = (*interactionManagerImpl)(nil)
 
@@ -30,12 +30,15 @@ func NewInteractionManager() InteractionManager {
 func (manager *interactionManagerImpl) RegisterModals(interactives ...*core.ModalComponent) {
 	manager.modals = append(manager.modals, interactives...)
 }
+
 func (manager *interactionManagerImpl) RegisterSlashCommands(interactives ...*core.SlashCommand) {
 	manager.slashCommands = append(manager.slashCommands, interactives...)
 }
+
 func (manager *interactionManagerImpl) RegisterMessageCommands(interactives ...*core.MessageCommand) {
 	manager.messageCommands = append(manager.messageCommands, interactives...)
 }
+
 func (manager *interactionManagerImpl) RegisterMessageComponents(interactives ...*core.MessageComponent) {
 	manager.messageComponents = append(manager.messageComponents, interactives...)
 }

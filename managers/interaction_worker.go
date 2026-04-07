@@ -10,7 +10,7 @@ import (
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
-	"github.com/richaardev/concord/discord/core"
+	"github.com/richaardev/concord/core"
 )
 
 var _ InteractionWorker = (*interactionWorkerImpl)(nil)

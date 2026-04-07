@@ -3,6 +3,7 @@ package discordutils
 import (
 	"fmt"
 	"slices"
+	"strings"
 
 	"github.com/disgoorg/disgo/discord"
 )
@@ -21,13 +22,11 @@ func ChannelMention(id string) string {
 
 func ToMessageCreate(msg discord.Message) discord.MessageCreate {
 	return discord.MessageCreate{
-		Content:    msg.Content,
-		TTS:        msg.TTS,
-		Embeds:     slices.Clone(msg.Embeds),
-		Components: slices.Clone(msg.Components),
-
+		TTS:             msg.TTS,
 		AllowedMentions: nil,
-		Nonce:           string(msg.Nonce),
+		Content:         msg.Content,
+		Embeds:          slices.Clone(msg.Embeds),
+		Components:      slices.Clone(msg.Components),
 		Flags:           msg.Flags,
 	}
 }
@@ -224,4 +223,8 @@ func ValidateDiscordMessage(msg discord.MessageCreate) error {
 	}
 
 	return nil
+}
+
+func JoinLine(elements ...string) string {
+	return strings.Join(elements, "\n")
 }
