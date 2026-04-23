@@ -1,4 +1,4 @@
-package discordutils
+package cordutils
 
 import (
 	"encoding/base64"

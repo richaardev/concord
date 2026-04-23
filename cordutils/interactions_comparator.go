@@ -1,4 +1,4 @@
-package discordutils
+package cordutils
 
 import (
 	"log/slog"
@@ -40,7 +40,7 @@ func CheckIfCommandsIsEqual(oldCommands []discord.ApplicationCommand, desiredCom
 			return false
 		}
 
-		if !compareApplicationCommand(existingCmd, desired) {
+		if !CompareApplicationCommand(existingCmd, desired) {
 			logComparison("command_payload_mismatch", map[string]any{
 				"name": desired.CommandName(),
 				"type": desired.Type(),
@@ -65,7 +65,7 @@ func CheckIfCommandsIsEqual(oldCommands []discord.ApplicationCommand, desiredCom
 	return true
 }
 
-func compareApplicationCommand(existing discord.ApplicationCommand, desired discord.ApplicationCommandCreate) bool {
+func CompareApplicationCommand(existing discord.ApplicationCommand, desired discord.ApplicationCommandCreate) bool {
 	switch oldCmd := existing.(type) {
 	case discord.SlashCommand:
 		desiredCmd, ok := desired.(discord.SlashCommandCreate)
@@ -73,35 +73,35 @@ func compareApplicationCommand(existing discord.ApplicationCommand, desired disc
 			logComparison("type_cast_failure", map[string]any{"expected": "SlashCommandCreate", "got": desired})
 			return false
 		}
-		return compareSlashCommand(oldCmd, desiredCmd)
+		return CompareSlashCommand(oldCmd, desiredCmd)
 	case discord.UserCommand:
 		desiredCmd, ok := desired.(discord.UserCommandCreate)
 		if !ok {
 			logComparison("type_cast_failure", map[string]any{"expected": "UserCommandCreate", "got": desired})
 			return false
 		}
-		return compareUserCommand(oldCmd, desiredCmd)
+		return CompareUserCommand(oldCmd, desiredCmd)
 	case discord.MessageCommand:
 		desiredCmd, ok := desired.(discord.MessageCommandCreate)
 		if !ok {
 			logComparison("type_cast_failure", map[string]any{"expected": "MessageCommandCreate", "got": desired})
 			return false
 		}
-		return compareMessageCommand(oldCmd, desiredCmd)
+		return CompareMessageCommand(oldCmd, desiredCmd)
 	case discord.EntryPointCommand:
 		desiredCmd, ok := desired.(discord.EntryPointCommandCreate)
 		if !ok {
 			logComparison("type_cast_failure", map[string]any{"expected": "EntryPointCommandCreate", "got": desired})
 			return false
 		}
-		return compareEntryPointCommand(oldCmd, desiredCmd)
+		return CompareEntryPointCommand(oldCmd, desiredCmd)
 	default:
 		logComparison("unsupported_command_type", map[string]any{"type": existing.Type()})
 		return false
 	}
 }
 
-func compareSlashCommand(existing discord.SlashCommand, desired discord.SlashCommandCreate) bool {
+func CompareSlashCommand(existing discord.SlashCommand, desired discord.SlashCommandCreate) bool {
 	if existing.Name() != desired.Name || existing.Description != desired.Description {
 		logComparison("slash_metadata_mismatch", map[string]any{
 			"existing_name":        existing.Name(),
@@ -150,7 +150,7 @@ func compareSlashCommand(existing discord.SlashCommand, desired discord.SlashCom
 	return compareOptions(existing.Options, desired.Options)
 }
 
-func compareUserCommand(existing discord.UserCommand, desired discord.UserCommandCreate) bool {
+func CompareUserCommand(existing discord.UserCommand, desired discord.UserCommandCreate) bool {
 	return compareSharedContextCommandFields(
 		existing.Name(),
 		desired.Name,
@@ -167,7 +167,7 @@ func compareUserCommand(existing discord.UserCommand, desired discord.UserComman
 	)
 }
 
-func compareMessageCommand(existing discord.MessageCommand, desired discord.MessageCommandCreate) bool {
+func CompareMessageCommand(existing discord.MessageCommand, desired discord.MessageCommandCreate) bool {
 	return compareSharedContextCommandFields(
 		existing.Name(),
 		desired.Name,
@@ -184,7 +184,7 @@ func compareMessageCommand(existing discord.MessageCommand, desired discord.Mess
 	)
 }
 
-func compareEntryPointCommand(existing discord.EntryPointCommand, desired discord.EntryPointCommandCreate) bool {
+func CompareEntryPointCommand(existing discord.EntryPointCommand, desired discord.EntryPointCommandCreate) bool {
 	if !compareSharedContextCommandFields(
 		existing.Name(),
 		desired.Name,

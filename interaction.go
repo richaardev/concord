@@ -1,26 +1,10 @@
-package core
+package concord
 
 import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/omit"
 )
-
-type ModalComponent struct {
-	Annotations map[string]string
-	RunE        func(event *events.ModalSubmitInteractionCreate) error
-
-	CustomID      string
-	CustomIDRegex string
-}
-
-type MessageComponent struct {
-	Annotations map[string]string
-	RunE        func(event *events.ComponentInteractionCreate) error
-
-	CustomID      string
-	CustomIDRegex string
-}
 
 type SlashCommand struct {
 	Name                     string
@@ -69,6 +53,22 @@ type MessageCommand struct {
 
 	PreRunE func(event *events.ApplicationCommandInteractionCreate) bool
 	RunE    func(event *events.ApplicationCommandInteractionCreate) error
+}
+
+type MessageComponent struct {
+	Annotations map[string]string
+	RunE        func(event *events.ComponentInteractionCreate) error
+
+	CustomID      string
+	CustomIDRegex string
+}
+
+type ModalComponent struct {
+	Annotations map[string]string
+	RunE        func(event *events.ModalSubmitInteractionCreate) error
+
+	CustomID      string
+	CustomIDRegex string
 }
 
 func SlashCommandToCreate(slash *SlashCommand) discord.SlashCommandCreate {

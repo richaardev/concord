@@ -1,4 +1,4 @@
-package managers
+package concord
 
 import (
 	"fmt"
@@ -10,7 +10,6 @@ import (
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
-	"github.com/richaardev/concord/core"
 )
 
 var _ InteractionWorker = (*interactionWorkerImpl)(nil)
@@ -37,7 +36,7 @@ func NewInteractionWorker(manager InteractionManager, workersSize int) Interacti
 		InteractionHandlerChannel: make(chan discord.Interaction),
 	}
 
-	for i := 0; i < workersSize; i++ {
+	for i := range workersSize {
 		go worker.Worker(i)
 	}
 
@@ -58,7 +57,7 @@ func (i *interactionWorkerImpl) Worker(id int) {
 	for interaction := range i.InteractionHandlerChannel {
 		i.interactionWorkers[id] = true
 
-		slog.Info(
+		slog.Debug(
 			"Running a new interaction",
 			"Interaction Type", interaction.Type(),
 			"Interaction ID", interaction.ID().String(),
@@ -96,8 +95,8 @@ func (i *interactionWorkerImpl) handleCommandInteraction(event *events.Applicati
 func (i *interactionWorkerImpl) handleSlashCommandInteraction(event *events.ApplicationCommandInteractionCreate) {
 	data := event.SlashCommandInteractionData()
 
-	var result *core.SlashCommand
-	for _, c := range i.manager.SlashCommands() {
+	var result *SlashCommand
+	for _, c := range i.manager.ListSlashCommands() {
 		if data.CommandName() == c.Name {
 			result = c
 			break
@@ -111,7 +110,7 @@ func (i *interactionWorkerImpl) handleSlashCommandInteraction(event *events.Appl
 	}
 
 	if event.SlashCommandInteractionData().SubCommandName != nil {
-		index := slices.IndexFunc(result.SubCommands, func(s core.SubCommand) bool {
+		index := slices.IndexFunc(result.SubCommands, func(s SubCommand) bool {
 			return s.Name == *event.SlashCommandInteractionData().SubCommandName
 		})
 		if index != -1 {
@@ -137,8 +136,8 @@ func (i *interactionWorkerImpl) handleSlashCommandInteraction(event *events.Appl
 func (i *interactionWorkerImpl) handleMessageCommandInteraction(event *events.ApplicationCommandInteractionCreate) {
 	data := event.MessageCommandInteractionData()
 
-	var result *core.MessageCommand
-	for _, c := range i.manager.MessageCommands() {
+	var result *MessageCommand
+	for _, c := range i.manager.ListMessageCommands() {
 		if data.CommandName() == c.Name {
 			result = c
 			break
@@ -162,8 +161,8 @@ func (i *interactionWorkerImpl) handleMessageCommandInteraction(event *events.Ap
 }
 
 func (i *interactionWorkerImpl) handleComponentInteration(event *events.ComponentInteractionCreate) {
-	var result *core.MessageComponent
-	for _, c := range i.manager.MessageComponents() {
+	var result *MessageComponent
+	for _, c := range i.manager.ListMessageComponents() {
 		if c.CustomIDRegex != "" {
 			match, err := regexp.MatchString(c.CustomIDRegex, event.Data.CustomID())
 			if match && err == nil {
@@ -199,8 +198,8 @@ func (i *interactionWorkerImpl) handleComponentInteration(event *events.Componen
 }
 
 func (i *interactionWorkerImpl) handleModalSubmit(event *events.ModalSubmitInteractionCreate) {
-	var result *core.ModalComponent
-	for _, c := range i.manager.Modals() {
+	var result *ModalComponent
+	for _, c := range i.manager.ListModals() {
 		if c.CustomIDRegex != "" {
 			match, err := regexp.MatchString(c.CustomIDRegex, event.Data.CustomID)
 			if match && err == nil {
@@ -226,8 +225,8 @@ func (i *interactionWorkerImpl) handleModalSubmit(event *events.ModalSubmitInter
 }
 
 func (i *interactionWorkerImpl) handleAutocompleteInteraction(event *events.AutocompleteInteractionCreate) {
-	var result *core.SlashCommand
-	for _, c := range i.manager.SlashCommands() {
+	var result *SlashCommand
+	for _, c := range i.manager.ListSlashCommands() {
 		if event.Data.CommandName == c.Name {
 			result = c
 			break

@@ -10,7 +10,6 @@ import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/snowflake/v2"
-	"github.com/richaardev/concord/client"
 )
 
 var (
@@ -54,14 +53,14 @@ type Interactivity interface {
 
 type interactivityImpl struct {
 	id       string
-	customId string
+	customID string
 
-	userId    snowflake.ID
-	messageId snowflake.ID
-	channelId snowflake.ID
-	guildId   snowflake.ID
+	userID    snowflake.ID
+	messageID snowflake.ID
+	channelID snowflake.ID
+	guildID   snowflake.ID
 
-	client *client.ConcordClient
+	client *bot.Client
 	ctx    context.Context
 	cancel context.CancelFunc
 	mu     sync.RWMutex
@@ -76,7 +75,7 @@ type interactivityImpl struct {
 	componentFilter   func(e *events.ComponentInteractionCreate) bool
 }
 
-func NewInteractivity(client *client.ConcordClient, opts ...ManagerOption) Interactivity {
+func NewInteractivity(client *bot.Client, opts ...ManagerOption) Interactivity {
 	id := randomString(64)
 	config := ManagerOptions{}
 	for _, opt := range opts {
@@ -117,12 +116,12 @@ func NewInteractivity(client *client.ConcordClient, opts ...ManagerOption) Inter
 
 	i := &interactivityImpl{
 		id:       id,
-		customId: config.CustomID,
+		customID: config.CustomID,
 
-		userId:    config.UserID,
-		messageId: config.MessageID,
-		channelId: config.ChannelID,
-		guildId:   config.GuildID,
+		userID:    config.UserID,
+		messageID: config.MessageID,
+		channelID: config.ChannelID,
+		guildID:   config.GuildID,
 
 		client:            client,
 		ctx:               ctx,
@@ -161,23 +160,23 @@ func (i *interactivityImpl) ID() string {
 }
 
 func (i *interactivityImpl) CustomID() string {
-	return i.customId
+	return i.customID
 }
 
 func (i *interactivityImpl) ChannelID() snowflake.ID {
-	return i.guildId
+	return i.guildID
 }
 
 func (i *interactivityImpl) GuildID() snowflake.ID {
-	return i.guildId
+	return i.guildID
 }
 
 func (i *interactivityImpl) MessageID() snowflake.ID {
-	return i.messageId
+	return i.messageID
 }
 
 func (i *interactivityImpl) UserID() snowflake.ID {
-	return i.userId
+	return i.userID
 }
 
 func (i *interactivityImpl) button(label string, style discord.ButtonStyle) *InteractiveButton {
@@ -348,7 +347,7 @@ func (i *interactivityImpl) monitorIdle(idleTime time.Duration) {
 }
 
 func (i *interactivityImpl) watchComponents() {
-	ch, cancel := bot.NewEventCollector(i.client.Client, func(e *events.ComponentInteractionCreate) bool {
+	ch, cancel := bot.NewEventCollector(i.client, func(e *events.ComponentInteractionCreate) bool {
 		if i.componentFilter != nil {
 			return i.componentFilter(e)
 		}
@@ -382,7 +381,7 @@ func (i *interactivityImpl) watchComponents() {
 }
 
 func (i *interactivityImpl) watchModals() {
-	ch, cancel := bot.NewEventCollector(i.client.Client, func(e *events.ModalSubmitInteractionCreate) bool {
+	ch, cancel := bot.NewEventCollector(i.client, func(e *events.ModalSubmitInteractionCreate) bool {
 		if i.modalFilter != nil {
 			return i.modalFilter(e)
 		}
