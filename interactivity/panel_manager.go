@@ -44,6 +44,24 @@ func (m *panelManagerImpl) PanelID() string {
 	return m.panelID
 }
 
+func (m *panelManagerImpl) processComponent(comp any) any {
+	switch c := comp.(type) {
+	case discord.ButtonComponent:
+		return c.WithCustomID(m.generateCustomID(c.CustomID))
+	case discord.StringSelectMenuComponent:
+		return c.WithCustomID(m.generateCustomID(c.CustomID))
+	case discord.ChannelSelectMenuComponent:
+		return c.WithCustomID(m.generateCustomID(c.CustomID))
+	case discord.MentionableSelectMenuComponent:
+		return c.WithCustomID(m.generateCustomID(c.CustomID))
+	case discord.RoleSelectMenuComponent:
+		return c.WithCustomID(m.generateCustomID(c.CustomID))
+	case discord.UserSelectMenuComponent:
+		return c.WithCustomID(m.generateCustomID(c.CustomID))
+	}
+	return comp
+}
+
 func (m *panelManagerImpl) Render(e any) error {
 	v := reflect.ValueOf(e)
 	if v.Kind() == reflect.Pointer {
@@ -84,33 +102,25 @@ func (m *panelManagerImpl) Render(e any) error {
 			case discord.SectionComponent:
 				switch v := row.Accessory.(type) {
 				case discord.ButtonComponent:
-					fmt.Println("OK")
 					row = row.WithAccessory(v.WithCustomID(m.generateCustomID(v.CustomID)))
 				}
 
 				(*view.Components)[rootIdx] = row
 
 			case discord.ContainerComponent:
-			// TODO: container component
+				for _, sub := range row.Components {
+					if ar, ok := sub.(*discord.ActionRowComponent); ok {
+						for j, subSub := range ar.Components {
+							m.componentIds = append(m.componentIds, subSub.GetCustomID())
+							ar.Components[j] = m.processComponent(subSub).(discord.InteractiveComponent)
+						}
+					}
+				}
 
 			case discord.ActionRowComponent:
 				for i, sub := range row.Components {
-					switch v := sub.(type) {
-					case discord.ButtonComponent:
-						row.Components[i] = v.WithCustomID(m.generateCustomID(v.CustomID))
-					case discord.StringSelectMenuComponent:
-						row.Components[i] = v.WithCustomID(m.generateCustomID(v.CustomID))
-					case discord.ChannelSelectMenuComponent:
-						row.Components[i] = v.WithCustomID(m.generateCustomID(v.CustomID))
-					case discord.MentionableSelectMenuComponent:
-						row.Components[i] = v.WithCustomID(m.generateCustomID(v.CustomID))
-					case discord.RoleSelectMenuComponent:
-						row.Components[i] = v.WithCustomID(m.generateCustomID(v.CustomID))
-					case discord.UserSelectMenuComponent:
-						row.Components[i] = v.WithCustomID(m.generateCustomID(v.CustomID))
-					}
-
 					m.componentIds = append(m.componentIds, sub.GetCustomID())
+					row.Components[i] = m.processComponent(sub).(discord.InteractiveComponent)
 				}
 
 				(*view.Components)[rootIdx] = row
