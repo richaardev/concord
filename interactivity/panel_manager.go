@@ -108,14 +108,18 @@ func (m *panelManagerImpl) Render(e any) error {
 				(*view.Components)[rootIdx] = row
 
 			case discord.ContainerComponent:
-				for _, sub := range row.Components {
+				for i, sub := range row.Components {
 					if ar, ok := sub.(*discord.ActionRowComponent); ok {
 						for j, subSub := range ar.Components {
 							m.componentIds = append(m.componentIds, subSub.GetCustomID())
 							ar.Components[j] = m.processComponent(subSub).(discord.InteractiveComponent)
 						}
 					}
+
+					row.Components[i] = sub
 				}
+
+				(*view.Components)[rootIdx] = row
 
 			case discord.ActionRowComponent:
 				for i, sub := range row.Components {
