@@ -1,6 +1,6 @@
 module github.com/richaardev/concord
 
-go 1.25.0
+go 1.26.0
 
 require (
 	github.com/disgoorg/disgo v0.19.4-0.20260406133522-1fd08eb03eae // indirect

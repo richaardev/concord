@@ -17,30 +17,30 @@ func randomString(length int) string {
 	return string(b)
 }
 
-func GetInteractivity(ID string) Interactivity {
-	i, ok := interactives[ID]
-	if !ok {
-		return nil
-	}
-
-	return i
-}
-
-func GetInteractivityByCustomID(customID string) (result []Interactivity) {
-	for _, interactive := range interactives {
-		if interactive.CustomID() == customID {
-			result = append(result, interactive)
-		}
-	}
-
-	return result
-}
-
-func CancelInteractivity(ID string) {
-	i, ok := interactives[ID]
-	if !ok {
-		return
-	}
-
-	i.Cancel()
-}
+// func GetInteractivity(ID string) Interactivity {
+// 	i, ok := interactives[ID]
+// 	if !ok {
+// 		return nil
+// 	}
+//
+// 	return i
+// }
+//
+// func GetInteractivityByCustomID(customID string) (result []Interactivity) {
+// 	for _, interactive := range interactives {
+// 		if interactive.CustomID() == customID {
+// 			result = append(result, interactive)
+// 		}
+// 	}
+//
+// 	return result
+// }
+//
+// func CancelInteractivity(ID string) {
+// 	i, ok := interactives[ID]
+// 	if !ok {
+// 		return
+// 	}
+//
+// 	i.Cancel()
+// }
